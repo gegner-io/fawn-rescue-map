@@ -25,6 +25,7 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
   private map?: L.Map;
   private parcelLayer?: L.GeoJSON;
   private readonly parcelLayersById = new Map<number, L.Path>();
+  private readonly orderLabelsByParcelId = new Map<number, L.Tooltip>();
   private readonly subscriptions = new Subscription();
 
   constructor(
@@ -68,6 +69,7 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     const [moved] = reordered.splice(payload.previousIndex, 1);
     reordered.splice(payload.currentIndex, 0, moved);
     this.selectedParcelIds = reordered;
+    this.refreshOrderLabels();
   }
 
   // Initializes base map and OpenStreetMap tile layer.
@@ -139,6 +141,7 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     });
 
     this.selectedParcelIds = [...this.selectedParcelIds, parcelId];
+    this.refreshOrderLabels();
     this.activateParcel(parcelId);
   }
 
@@ -149,6 +152,8 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     }
 
     this.selectedParcelIds = this.selectedParcelIds.filter((id) => id !== parcelId);
+    this.removeOrderLabel(parcelId);
+    this.refreshOrderLabels();
 
     if (this.activeParcelId === parcelId) {
       const fallbackParcelId = this.selectedParcelIds[this.selectedParcelIds.length - 1] ?? null;
@@ -189,5 +194,60 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
       });
 
     this.subscriptions.add(detailsSubscription);
+  }
+
+  // Keeps map labels in sync with the current mission order list.
+  private refreshOrderLabels(): void {
+    const mapRef = this.map;
+    if (!mapRef) {
+      return;
+    }
+
+    const selectedSet = new Set(this.selectedParcelIds);
+
+    for (const parcelId of this.orderLabelsByParcelId.keys()) {
+      if (!selectedSet.has(parcelId)) {
+        this.removeOrderLabel(parcelId);
+      }
+    }
+
+    this.selectedParcelIds.forEach((parcelId, index) => {
+      const layer = this.parcelLayersById.get(parcelId);
+      if (!layer) {
+        return;
+      }
+
+      const center = (layer as L.Polygon).getBounds().getCenter();
+      const labelText = `${index + 1}`;
+      const existingLabel = this.orderLabelsByParcelId.get(parcelId);
+
+      if (existingLabel) {
+        existingLabel.setLatLng(center);
+        existingLabel.setContent(`<span>${labelText}</span>`);
+        return;
+      }
+
+      const label = L.tooltip({
+        permanent: true,
+        direction: 'center',
+        className: 'route-order-label',
+        opacity: 1
+      })
+        .setLatLng(center)
+        .setContent(`<span>${labelText}</span>`)
+        .addTo(mapRef);
+
+      this.orderLabelsByParcelId.set(parcelId, label);
+    });
+  }
+
+  private removeOrderLabel(parcelId: number): void {
+    const label = this.orderLabelsByParcelId.get(parcelId);
+    if (!label || !this.map) {
+      return;
+    }
+
+    this.map.removeLayer(label);
+    this.orderLabelsByParcelId.delete(parcelId);
   }
 }
