@@ -1,0 +1,22 @@
+.map-layout {
+  height: calc(100vh - 57px);
+  display: grid;
+  grid-template-columns: 1fr 340px;
+}
+
+.map-pane {
+  min-height: 320px;
+}
+
+#parcel-map {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 58vh auto;
+    height: calc(100vh - 57px);
+  }
+}

@@ -1,0 +1,17 @@
+<section class="map-layout">
+  <div class="map-pane">
+    <div id="parcel-map" aria-label="Interactive parcel map"></div>
+  </div>
+
+  <app-parcel-sidebar
+    [selectedParcelIds]="selectedParcelIds"
+    [activeParcelId]="activeParcelId"
+    [parcelDetails]="parcelDetails"
+    [loading]="loadingDetails"
+    [errorMessage]="detailsError"
+    (selectParcel)="onSelectParcelFromSidebar($event)"
+    (removeParcel)="onRemoveParcelFromSidebar($event)"
+    (reorderParcels)="onReorderParcels($event)"
+    (initiateMission)="onInitiateMission($event)"
+  ></app-parcel-sidebar>
+</section>

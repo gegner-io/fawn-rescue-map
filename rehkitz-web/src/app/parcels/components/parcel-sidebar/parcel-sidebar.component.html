@@ -1,0 +1,85 @@
+<aside class="sidebar">
+  <div class="section-header">
+    <h2>Missionsreihenfolge</h2>
+    <span class="count-pill">{{ selectedParcelIds.length }}</span>
+  </div>
+
+  <p *ngIf="selectedParcelIds.length === 0" class="hint">
+    Wähle Parzellen auf der Karte aus, um eine Flugroute zu erstellen.
+  </p>
+
+  <ol
+    *ngIf="selectedParcelIds.length > 0"
+    class="parcel-list"
+    cdkDropList
+    [cdkDropListData]="selectedParcelIds"
+    (cdkDropListDropped)="onDrop($event)"
+  >
+    <li
+      *ngFor="let parcelId of selectedParcelIds; let index = index"
+      cdkDrag
+      [class.active]="parcelId === activeParcelId"
+    >
+      <div class="drag-handle" cdkDragHandle aria-label="Drag to reorder">⋮⋮</div>
+
+      <button type="button" class="parcel-link" (click)="onSelectParcel(parcelId)">
+        <span class="route-index">{{ index + 1 }}</span>
+        <span>Parzelle {{ parcelId }}</span>
+      </button>
+
+      <div class="row-actions">
+        <button type="button" class="icon-btn danger" (click)="onRemoveParcel(parcelId)" aria-label="Remove parcel">
+          ✕
+        </button>
+      </div>
+
+      <div class="drag-preview" *cdkDragPreview>
+        {{ index + 1 }}. Parzelle {{ parcelId }}
+      </div>
+    </li>
+  </ol>
+
+  <p *ngIf="selectedParcelIds.length > 0" class="order-summary">
+    Reihenfolge: {{ selectedParcelIds.join(' → ') }}
+  </p>
+
+  <button
+    type="button"
+    (click)="onInitiateMission()"
+    [disabled]="selectedParcelIds.length === 0"
+  >
+    Auftrag mit dieser Reihenfolge starten
+  </button>
+
+  <h3>Aktive Parzelle</h3>
+
+  <p *ngIf="activeParcelId === null" class="hint">
+    Wähle eine Parzelle aus Karte oder Liste, um Details zu laden.
+  </p>
+
+  <p *ngIf="loading" class="status">Loading parcel data…</p>
+
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
+  <ng-container *ngIf="parcelDetails && !loading">
+    <dl class="details-grid">
+      <dt>Parcel ID</dt>
+      <dd>{{ parcelDetails.parcelId }}</dd>
+
+      <dt>Status</dt>
+      <dd>{{ parcelDetails.status }}</dd>
+
+      <dt>Area (m²)</dt>
+      <dd>{{ parcelDetails.areaM2 ?? 'n/a' }}</dd>
+
+      <dt>Confidence</dt>
+      <dd>{{ parcelDetails.confidence ?? 'n/a' }}</dd>
+
+      <dt>Source zoom</dt>
+      <dd>{{ parcelDetails.sourceTileZoom ?? 'n/a' }}</dd>
+
+      <dt>Notes</dt>
+      <dd>{{ parcelDetails.notes }}</dd>
+    </dl>
+  </ng-container>
+</aside>
