@@ -3,7 +3,6 @@
 ![Frontend Angular](https://img.shields.io/badge/Frontend-Angular%2020-DD0031?logo=angular&logoColor=white)
 ![Map Leaflet](https://img.shields.io/badge/Map-Leaflet-199900?logo=leaflet&logoColor=white)
 ![Deploy GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-121013?logo=github&logoColor=white)
-![Pages Workflow](https://img.shields.io/github/actions/workflow/status/gegner-io/fawn-rescue-map/deploy-pages.yml?branch=main&label=pages%20deploy)
 
 Interaktive Kartenanwendung zur Einsatzplanung der Rehkitzrettung vor Mäharbeiten.
 Das Frontend unterstützt die Auswahl mehrerer Parzellen, eine definierte Befliegungs-Reihenfolge und die strukturierte Übergabe eines Missionsauftrags.
