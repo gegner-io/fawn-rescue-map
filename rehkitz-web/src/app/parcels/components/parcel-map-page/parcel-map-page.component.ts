@@ -6,7 +6,6 @@ import {
   ParcelFeature,
   ParcelFeatureCollection
 } from '../../models/data-contract.models';
-import { ParcelBackendService } from '../../services/parcel-backend.service';
 import { ParcelMapDataService } from '../../services/parcel-map-data.service';
 
 @Component({
@@ -25,13 +24,11 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
   private map?: L.Map;
   private parcelLayer?: L.GeoJSON;
   private readonly parcelLayersById = new Map<number, L.Path>();
+  private readonly parcelFeaturesById = new Map<number, ParcelFeature>();
   private readonly orderLabelsByParcelId = new Map<number, L.Tooltip>();
   private readonly subscriptions = new Subscription();
 
-  constructor(
-    private readonly parcelMapDataService: ParcelMapDataService,
-    private readonly parcelBackendService: ParcelBackendService
-  ) {}
+  constructor(private readonly parcelMapDataService: ParcelMapDataService) {}
 
   ngOnInit(): void {
     this.initializeMap();
@@ -127,6 +124,7 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
         const parcelFeature = feature as unknown as ParcelFeature;
         const parcelId = parcelFeature.properties.parcel_id;
         this.parcelLayersById.set(parcelId, layer as L.Path);
+        this.parcelFeaturesById.set(parcelId, parcelFeature);
         layer.on('click', () => this.toggleParcelSelection(parcelFeature));
       }
     }).addTo(this.map);
@@ -188,25 +186,40 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     }
 
     this.activeParcelId = parcelId;
-    this.parcelDetails = null;
+    const feature = this.parcelFeaturesById.get(parcelId);
+    this.parcelDetails = feature ? this.mapFeatureToDetails(feature) : null;
     this.detailsError = null;
-    this.loadingDetails = true;
+    this.loadingDetails = false;
 
-    // Parcel details are fetched from a backend service (mocked here) per requirement.
-    const detailsSubscription = this.parcelBackendService
-      .fetchParcelDetails(parcelId)
-      .subscribe({
-        next: (details) => {
-          this.parcelDetails = details;
-          this.loadingDetails = false;
-        },
-        error: () => {
-          this.detailsError = 'Parcel details could not be loaded.';
-          this.loadingDetails = false;
-        }
-      });
+    if (!this.parcelDetails) {
+      this.detailsError = 'Parzellendetails konnten nicht aus der GeoJSON gelesen werden.';
+    }
+  }
 
-    this.subscriptions.add(detailsSubscription);
+  // Maps available GeoJSON properties to UI details without generating mock values.
+  private mapFeatureToDetails(feature: ParcelFeature): ParcelDetails {
+    const properties = feature.properties;
+
+    return {
+      parcelId: properties.parcel_id,
+      status: this.readString(properties.status),
+      areaM2: this.readNumber(properties.area_m2),
+      confidence: this.readNumber(properties.confidence),
+      sourceTileZoom: this.readNumber(properties.source_tile_zoom),
+      notes: this.readString(properties.notes)
+    };
+  }
+
+  private readNumber(value: unknown): number | undefined {
+    if (typeof value !== 'number') {
+      return undefined;
+    }
+
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  private readString(value: unknown): string | undefined {
+    return typeof value === 'string' && value.trim() ? value : undefined;
   }
 
   // Keeps map labels in sync with the current mission order list.

@@ -2,6 +2,11 @@ export type ParcelGeometryType = 'Polygon' | 'MultiPolygon';
 
 export interface ParcelProperties {
   parcel_id: number;
+  source_tile_zoom?: number;
+  confidence?: number;
+  area_m2?: number;
+  status?: string;
+  notes?: string;
   [key: string]: unknown;
 }
 
@@ -28,13 +33,13 @@ export interface ParcelFeatureCollection {
   features: ParcelFeature[];
 }
 
-export type ParcelStatus = 'candidate' | 'selected' | 'excluded';
+export type ParcelStatus = string;
 
 export interface ParcelDetails {
   parcelId: number;
-  status: ParcelStatus;
+  status?: ParcelStatus;
   areaM2?: number;
   confidence?: number;
   sourceTileZoom?: number;
-  notes: string;
+  notes?: string;
 }

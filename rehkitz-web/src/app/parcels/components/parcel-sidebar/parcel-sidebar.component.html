@@ -67,20 +67,30 @@
       <dt>Parcel ID</dt>
       <dd>{{ parcelDetails.parcelId }}</dd>
 
-      <dt>Status</dt>
-      <dd>{{ parcelDetails.status }}</dd>
+      <ng-container *ngIf="parcelDetails.status !== undefined">
+        <dt>Status</dt>
+        <dd>{{ parcelDetails.status }}</dd>
+      </ng-container>
 
-      <dt>Area (m²)</dt>
-      <dd>{{ parcelDetails.areaM2 ?? 'n/a' }}</dd>
+      <ng-container *ngIf="parcelDetails.areaM2 !== undefined">
+        <dt>Area (m²)</dt>
+        <dd>{{ parcelDetails.areaM2 }}</dd>
+      </ng-container>
 
-      <dt>Confidence</dt>
-      <dd>{{ parcelDetails.confidence ?? 'n/a' }}</dd>
+      <ng-container *ngIf="parcelDetails.confidence !== undefined">
+        <dt>Confidence</dt>
+        <dd>{{ parcelDetails.confidence }}</dd>
+      </ng-container>
 
-      <dt>Source zoom</dt>
-      <dd>{{ parcelDetails.sourceTileZoom ?? 'n/a' }}</dd>
+      <ng-container *ngIf="parcelDetails.sourceTileZoom !== undefined">
+        <dt>Source zoom</dt>
+        <dd>{{ parcelDetails.sourceTileZoom }}</dd>
+      </ng-container>
 
-      <dt>Notes</dt>
-      <dd>{{ parcelDetails.notes }}</dd>
+      <ng-container *ngIf="parcelDetails.notes !== undefined">
+        <dt>Notes</dt>
+        <dd>{{ parcelDetails.notes }}</dd>
+      </ng-container>
     </dl>
   </ng-container>
 
