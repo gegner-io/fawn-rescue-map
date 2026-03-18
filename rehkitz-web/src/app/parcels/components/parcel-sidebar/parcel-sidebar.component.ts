@@ -18,7 +18,14 @@ export class ParcelSidebarComponent {
   @Output() selectParcel = new EventEmitter<number>();
   @Output() removeParcel = new EventEmitter<number>();
   @Output() reorderParcels = new EventEmitter<{ previousIndex: number; currentIndex: number }>();
-  @Output() initiateMission = new EventEmitter<number[]>();
+  @Output() initiateMission = new EventEmitter<{
+    parcelIds: number[];
+    mowingStartDate: string;
+    mowingStartTime: string;
+  }>();
+
+  mowingStartDate = '';
+  mowingStartTime = '';
 
   onSelectParcel(parcelId: number): void {
     this.selectParcel.emit(parcelId);
@@ -38,8 +45,12 @@ export class ParcelSidebarComponent {
   }
 
   onInitiateMission(): void {
-    if (this.selectedParcelIds.length > 0) {
-      this.initiateMission.emit(this.selectedParcelIds);
+    if (this.selectedParcelIds.length > 0 && this.mowingStartDate && this.mowingStartTime) {
+      this.initiateMission.emit({
+        parcelIds: this.selectedParcelIds,
+        mowingStartDate: this.mowingStartDate,
+        mowingStartTime: this.mowingStartTime
+      });
     }
   }
 }

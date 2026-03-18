@@ -43,8 +43,21 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     this.map?.remove();
   }
 
-  onInitiateMission(parcelIds: number[]): void {
-    alert(`Placeholder: initiate drone mission for parcels: ${parcelIds.join(' -> ')}`);
+  onInitiateMission(payload: {
+    parcelIds: number[];
+    mowingStartDate: string;
+    mowingStartTime: string;
+  }): void {
+    alert(
+      [
+        'Demo-Projekt: Es wird noch kein echter Auftrag versendet.',
+        '',
+        `Geplante Reihenfolge der Parzellen: ${payload.parcelIds.join(' → ')}`,
+        `Geplanter Mähstart: ${payload.mowingStartDate} um ${payload.mowingStartTime} Uhr`,
+        '',
+        'Wenn das Projekt fertig ist und live geht, wird mit diesem Klick der Drohnenpilot informiert.'
+      ].join('\n')
+    );
   }
 
   onSelectParcelFromSidebar(parcelId: number): void {

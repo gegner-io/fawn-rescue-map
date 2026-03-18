@@ -1,4 +1,13 @@
 <aside class="sidebar">
+  <div class="time-selection">
+    <h3>Geplanter Mähstart</h3>
+    <label for="mowingStartDate">Datum</label>
+    <input id="mowingStartDate" type="date" [(ngModel)]="mowingStartDate" />
+
+    <label for="mowingStartTime">Uhrzeit</label>
+    <input id="mowingStartTime" type="time" [(ngModel)]="mowingStartTime" />
+  </div>
+
   <div class="section-header">
     <h2>Missionsreihenfolge</h2>
     <span class="count-pill">{{ selectedParcelIds.length }}</span>
@@ -43,14 +52,6 @@
     Reihenfolge: {{ selectedParcelIds.join(' → ') }}
   </p>
 
-  <button
-    type="button"
-    (click)="onInitiateMission()"
-    [disabled]="selectedParcelIds.length === 0"
-  >
-    Auftrag mit dieser Reihenfolge starten
-  </button>
-
   <h3>Aktive Parzelle</h3>
 
   <p *ngIf="activeParcelId === null" class="hint">
@@ -82,4 +83,13 @@
       <dd>{{ parcelDetails.notes }}</dd>
     </dl>
   </ng-container>
+
+  <button
+    type="button"
+    class="mission-submit"
+    (click)="onInitiateMission()"
+    [disabled]="selectedParcelIds.length === 0 || !mowingStartDate || !mowingStartTime"
+  >
+    Auftrag mit dieser Reihenfolge starten
+  </button>
 </aside>
