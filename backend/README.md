@@ -91,9 +91,20 @@ cp .env.production.example .env.production
 	Für dein Setup:
 
 	- `FRONTEND_ORIGIN=https://core.ipv64.de`
+	- `FRONTEND_DOMAIN=core.ipv64.de`
+	- `API_DOMAIN=api.core.ipv64.de`
 	- `AUTO_SEED=false`
 
-3) Production-Stack starten:
+3) Frontend Build für Server erzeugen:
+
+```bash
+cd ../rehkitz-web
+npm ci
+npm run build -- --configuration production --base-href /
+cd ..
+```
+
+4) Production-Stack starten:
 
 ```bash
 cd ..
@@ -102,10 +113,11 @@ docker compose -f docker-compose.prod.yml --env-file backend/.env.production up 
 
 Dabei übernimmt Caddy automatisch:
 
-- HTTPS-Zertifikate für `api.core.ipv64.de`
+- HTTPS-Zertifikate für `core.ipv64.de` und `api.core.ipv64.de`
+- Auslieferung des Angular Frontends unter `core.ipv64.de`
 - Reverse Proxy von `:443` auf internen API-Service `api:4000`
 
-4) Pre-Go-Live-Checks ausführen:
+5) Pre-Go-Live-Checks ausführen:
 
 ```powershell
 ./backend/scripts/pre-go-live-check.ps1 -ApiBaseUrl "https://api.deinedomain.tld" -AdminEmail "<admin-email>" -AdminPassword "<admin-password>"

@@ -122,9 +122,10 @@ Für produktionsnahe Inbetriebnahme liegen jetzt zusätzlich vor:
 Empfohlene Reihenfolge:
 
 1. `backend/.env.production` aus Vorlage erzeugen und alle Secrets setzen
-2. `docker compose -f docker-compose.prod.yml --env-file backend/.env.production up -d --build`
-3. `https://api.core.ipv64.de/health` prüfen
-4. Pre-Go-Live-Checks mit dem PowerShell-Script gegen die Ziel-API ausführen
+2. Frontend Build für Server erstellen: `cd rehkitz-web && npm ci && npm run build -- --configuration production --base-href /`
+3. `docker compose -f docker-compose.prod.yml --env-file backend/.env.production up -d --build`
+4. `https://api.core.ipv64.de/health` und `https://core.ipv64.de` prüfen
+5. Pre-Go-Live-Checks mit dem PowerShell-Script gegen die Ziel-API ausführen
 
 ## GeoJSON-Scraper
 
