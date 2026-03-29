@@ -38,10 +38,12 @@ Wichtig:
 ## Struktur
 
 - `rehkitz-web/` – Angular-Frontend
+- `backend/` – API-Startservice (Express + TypeScript)
+- `docker-compose.yml` – lokale Self-Hosting-Basis (API + PostgreSQL)
 - `parcels.geojson` – aktuelle Parzellendaten
 - `DATA_CONTRACT.md` – Datenvertrag zwischen Pipeline und Frontend
 
-## Lokal starten
+## Lokal starten (nur Frontend)
 
 ```bash
 cd rehkitz-web
@@ -52,6 +54,49 @@ npm start
 Dann im Browser öffnen:
 
 - http://localhost:4200/
+
+## Lokal starten (Frontend + Backend + DB)
+
+1) Backend-Abhängigkeiten installieren:
+
+```bash
+cd backend
+npm install
+```
+
+2) Backend lokal starten:
+
+```bash
+npm run dev
+```
+
+3) Datenbank + API alternativ per Docker Compose starten:
+
+```bash
+cd ..
+docker compose up --build
+```
+
+4) Frontend starten:
+
+```bash
+cd rehkitz-web
+npm install
+npm start
+```
+
+Wichtige Endpunkte lokal:
+
+- Frontend: http://localhost:4200/
+- Backend Health: http://localhost:4000/health
+- PostgreSQL: localhost:5432
+
+Hinweis:
+
+- Die produktive API-URL ist über Angular Environments vorbereitet (`https://api.core.ipv64.de`).
+- Auth ist als MVP implementiert (`/api/auth/login`, `/api/me`, Rollenroute `/api/admin/ping`).
+- Userdaten liegen jetzt in PostgreSQL; Default-Seed ist für lokale Entwicklung aktiv.
+- Security-Hardening aktiv: Login-Rate-Limit, CORS-Allowlist, sichere JWT-Checks in Production.
 
 ## Deployment (GitHub Pages)
 
@@ -64,6 +109,22 @@ Das Deployment läuft über GitHub Actions:
 Einmalig in GitHub aktivieren:
 
 - Repository Settings → Pages → Source: **GitHub Actions**
+
+## Backend Production Runbook
+
+Für produktionsnahe Inbetriebnahme liegen jetzt zusätzlich vor:
+
+- [docker-compose.prod.yml](docker-compose.prod.yml)
+- [backend/.env.production.example](backend/.env.production.example)
+- [backend/scripts/pre-go-live-check.ps1](backend/scripts/pre-go-live-check.ps1)
+- [deploy/Caddyfile](deploy/Caddyfile)
+
+Empfohlene Reihenfolge:
+
+1. `backend/.env.production` aus Vorlage erzeugen und alle Secrets setzen
+2. `docker compose -f docker-compose.prod.yml --env-file backend/.env.production up -d --build`
+3. `https://api.core.ipv64.de/health` prüfen
+4. Pre-Go-Live-Checks mit dem PowerShell-Script gegen die Ziel-API ausführen
 
 ## GeoJSON-Scraper
 

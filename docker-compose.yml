@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fawn-rescue-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fawn_rescue
+      POSTGRES_USER: fawn_user
+      POSTGRES_PASSWORD: fawn_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fawn_user -d fawn_rescue"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fawn-rescue-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      FRONTEND_ORIGIN: http://localhost:4200
+      JWT_SECRET: dev-insecure-key-change-me
+      JWT_EXPIRES_IN: 8h
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: fawn_user
+      DB_PASSWORD: fawn_password
+      DB_NAME: fawn_rescue
+      AUTO_SEED: "true"
+      SEED_ADMIN_EMAIL: admin@fawn.local
+      SEED_ADMIN_NAME: Admin User
+      SEED_ADMIN_PASSWORD: admin123
+      SEED_DISPATCHER_EMAIL: dispatcher@fawn.local
+      SEED_DISPATCHER_NAME: Dispatcher User
+      SEED_DISPATCHER_PASSWORD: dispatch123
+      SEED_VIEWER_EMAIL: viewer@fawn.local
+      SEED_VIEWER_NAME: Viewer User
+      SEED_VIEWER_PASSWORD: viewer123
+    ports:
+      - "4000:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

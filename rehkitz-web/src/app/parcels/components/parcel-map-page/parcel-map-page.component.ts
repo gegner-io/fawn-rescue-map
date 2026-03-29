@@ -15,6 +15,18 @@ import { ParcelMapDataService } from '../../services/parcel-map-data.service';
   styleUrls: ['./parcel-map-page.component.css']
 })
 export class ParcelMapPageComponent implements OnInit, OnDestroy {
+  private static readonly authTokenStorageKey = 'fawn_auth_token';
+
+  backendHealthStatus: 'unknown' | 'ok' | 'error' = 'unknown';
+  authEmail = 'admin@fawn.local';
+  authPassword = 'admin123';
+  authToken = '';
+  currentUserRole: string | null = null;
+  currentUserEmail: string | null = null;
+  loginResult: string | null = null;
+  meResult: string | null = null;
+  adminPingResult: string | null = null;
+
   selectedParcelIds: number[] = [];
   activeParcelId: number | null = null;
   parcelDetails: ParcelDetails | null = null;
@@ -33,6 +45,8 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initializeMap();
     this.loadParcelGeometry();
+    this.checkBackendHealth();
+    this.restoreTokenFromStorage();
   }
 
   ngOnDestroy(): void {
@@ -82,6 +96,77 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     this.refreshOrderLabels();
   }
 
+  onLoginTest(): void {
+    const loginSubscription = this.parcelMapDataService
+      .login(this.authEmail.trim(), this.authPassword)
+      .subscribe({
+        next: (response) => {
+          this.authToken = response.accessToken;
+          this.currentUserRole = response.user.role;
+          this.currentUserEmail = response.user.email;
+          this.storeToken(this.authToken);
+          this.loginResult = `Login ok: ${response.user.email} (${response.user.role})`;
+        },
+        error: (error) => {
+          this.clearAuthState();
+          this.loginResult = `Login failed: ${error?.status ?? 'unknown'}`;
+        }
+      });
+
+    this.subscriptions.add(loginSubscription);
+  }
+
+  onFetchMeTest(): void {
+    if (!this.authToken) {
+      this.meResult = 'No token available. Run login first.';
+      return;
+    }
+
+    const meSubscription = this.parcelMapDataService.getMe(this.authToken).subscribe({
+      next: (response) => {
+        this.currentUserRole = response.user.role;
+        this.currentUserEmail = response.user.email;
+        this.meResult = `Me ok: ${response.user.email} (${response.user.role})`;
+      },
+      error: (error) => {
+        if (error?.status === 401) {
+          this.clearAuthState();
+        }
+        this.meResult = `Me failed: ${error?.status ?? 'unknown'}`;
+      }
+    });
+
+    this.subscriptions.add(meSubscription);
+  }
+
+  onPingAdminTest(): void {
+    if (!this.authToken) {
+      this.adminPingResult = 'No token available. Run login first.';
+      return;
+    }
+
+    const adminSubscription = this.parcelMapDataService.pingAdmin(this.authToken).subscribe({
+      next: (response) => {
+        this.adminPingResult = `Admin ok: ${response.message}`;
+      },
+      error: (error) => {
+        if (error?.status === 401) {
+          this.clearAuthState();
+        }
+        this.adminPingResult = `Admin failed: ${error?.status ?? 'unknown'}`;
+      }
+    });
+
+    this.subscriptions.add(adminSubscription);
+  }
+
+  onLogoutTest(): void {
+    this.clearAuthState();
+    this.loginResult = 'Logged out';
+    this.meResult = null;
+    this.adminPingResult = null;
+  }
+
   // Initializes base map and OpenStreetMap tile layer.
   private initializeMap(): void {
     this.map = L.map('parcel-map', {
@@ -106,6 +191,41 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     });
 
     this.subscriptions.add(geometrySubscription);
+  }
+
+  private checkBackendHealth(): void {
+    const healthSubscription = this.parcelMapDataService.checkBackendHealth().subscribe({
+      next: () => {
+        this.backendHealthStatus = 'ok';
+      },
+      error: () => {
+        this.backendHealthStatus = 'error';
+      }
+    });
+
+    this.subscriptions.add(healthSubscription);
+  }
+
+  private restoreTokenFromStorage(): void {
+    const storedToken = localStorage.getItem(ParcelMapPageComponent.authTokenStorageKey);
+
+    if (!storedToken) {
+      return;
+    }
+
+    this.authToken = storedToken;
+    this.onFetchMeTest();
+  }
+
+  private storeToken(token: string): void {
+    localStorage.setItem(ParcelMapPageComponent.authTokenStorageKey, token);
+  }
+
+  private clearAuthState(): void {
+    this.authToken = '';
+    this.currentUserRole = null;
+    this.currentUserEmail = null;
+    localStorage.removeItem(ParcelMapPageComponent.authTokenStorageKey);
   }
 
   // Creates an interactive parcel layer and wires click handlers for each feature.
