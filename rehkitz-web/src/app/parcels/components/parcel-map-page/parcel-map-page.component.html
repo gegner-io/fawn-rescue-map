@@ -1,36 +1,5 @@
 <section class="map-layout">
   <div class="map-pane">
-    <section class="api-test-panel" aria-label="API smoke test panel">
-      <div class="api-test-header">
-        <strong>API Test</strong>
-        <span
-          [class.status-ok]="backendHealthStatus === 'ok'"
-          [class.status-error]="backendHealthStatus === 'error'"
-        >
-          Health: {{ backendHealthStatus }}
-        </span>
-      </div>
-
-      <div class="api-auth-state" *ngIf="currentUserEmail && currentUserRole">
-        <small>Authenticated as: {{ currentUserEmail }} ({{ currentUserRole }})</small>
-      </div>
-
-      <div class="api-test-form">
-        <input type="email" [(ngModel)]="authEmail" placeholder="E-Mail" />
-        <input type="password" [(ngModel)]="authPassword" placeholder="Passwort" />
-        <button type="button" (click)="onLoginTest()">Login</button>
-        <button type="button" (click)="onFetchMeTest()" [disabled]="!authToken">/api/me</button>
-        <button type="button" (click)="onPingAdminTest()" [disabled]="!authToken">/api/admin/ping</button>
-        <button type="button" (click)="onLogoutTest()" [disabled]="!authToken">Logout</button>
-      </div>
-
-      <div class="api-test-results">
-        <small *ngIf="loginResult">{{ loginResult }}</small>
-        <small *ngIf="meResult">{{ meResult }}</small>
-        <small *ngIf="adminPingResult">{{ adminPingResult }}</small>
-      </div>
-    </section>
-
     <div id="parcel-map" aria-label="Interactive parcel map"></div>
   </div>
 

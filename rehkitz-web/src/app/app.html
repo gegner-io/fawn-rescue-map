@@ -1,6 +1,10 @@
 <main class="app-shell">
   <header class="app-header">
     <h1>{{ title }}</h1>
+    <div class="header-user" *ngIf="currentUser as user">
+      <span>{{ user.email }} ({{ user.role }})</span>
+      <button type="button" (click)="onLogout()">Logout</button>
+    </div>
   </header>
   <router-outlet></router-outlet>
 </main>

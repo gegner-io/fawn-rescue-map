@@ -1,0 +1,24 @@
+<section class="login-page">
+  <div class="login-card">
+    <h2>Anmeldung</h2>
+    <p>Bitte mit deinen Zugangsdaten anmelden.</p>
+
+    <form (ngSubmit)="onSubmit()" autocomplete="on">
+      <label>
+        E-Mail
+        <input type="email" name="email" [(ngModel)]="email" required />
+      </label>
+
+      <label>
+        Passwort
+        <input type="password" name="password" [(ngModel)]="password" required />
+      </label>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Anmeldung...' : 'Anmelden' }}
+      </button>
+    </form>
+
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
+</section>
