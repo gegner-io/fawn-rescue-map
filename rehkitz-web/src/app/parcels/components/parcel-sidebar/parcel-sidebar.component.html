@@ -67,6 +67,16 @@
       <dt>Parcel ID</dt>
       <dd>{{ parcelDetails.parcelId }}</dd>
 
+      <ng-container *ngIf="parcelDetails.hegegemeinschaftName !== undefined">
+        <dt>Hegegemeinschaft</dt>
+        <dd>{{ parcelDetails.hegegemeinschaftName }}</dd>
+      </ng-container>
+
+      <ng-container *ngIf="parcelDetails.revierName !== undefined">
+        <dt>Revier</dt>
+        <dd>{{ parcelDetails.revierName }}</dd>
+      </ng-container>
+
       <ng-container *ngIf="parcelDetails.status !== undefined">
         <dt>Status</dt>
         <dd>{{ parcelDetails.status }}</dd>

@@ -1,62 +1,34 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ParcelFeatureCollection } from '../models/data-contract.models';
+import { ParcelFeatureCollection, ParcelIndexResponse } from '../models/data-contract.models';
 import { environment } from '../../../environments/environment';
-
-export interface LoginResponse {
-  accessToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
-}
-
-export interface MeResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ParcelMapDataService {
-  private readonly parcelsUrl = 'assets/parcels.geojson';
   private readonly apiBaseUrl = environment.apiBaseUrl;
 
   constructor(private readonly http: HttpClient) {}
 
-  // Loads the parcel geometries that follow the DATA_CONTRACT.md feature collection contract.
-  loadParcels(): Observable<ParcelFeatureCollection> {
-    return this.http.get<ParcelFeatureCollection>(this.parcelsUrl);
+  loadParcelIndex(): Observable<ParcelIndexResponse> {
+    return this.http.get<ParcelIndexResponse>(`${this.apiBaseUrl}/api/parcels/index`);
   }
 
-  checkBackendHealth(): Observable<{ service: string; status: string }> {
-    return this.http.get<{ service: string; status: string }>(`${this.apiBaseUrl}/health`);
-  }
+  loadParcels(params: { revierId?: string; hegegemeinschaftId?: string }): Observable<ParcelFeatureCollection> {
+    let httpParams = new HttpParams();
 
-  login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiBaseUrl}/api/auth/login`, {
-      email,
-      password
-    });
-  }
+    if (params.revierId) {
+      httpParams = httpParams.set('revierId', params.revierId);
+    }
 
-  getMe(token: string): Observable<MeResponse> {
-    return this.http.get<MeResponse>(`${this.apiBaseUrl}/api/me`, {
-      headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
-    });
-  }
+    if (params.hegegemeinschaftId) {
+      httpParams = httpParams.set('hegegemeinschaftId', params.hegegemeinschaftId);
+    }
 
-  pingAdmin(token: string): Observable<{ message: string }> {
-    return this.http.get<{ message: string }>(`${this.apiBaseUrl}/api/admin/ping`, {
-      headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
+    return this.http.get<ParcelFeatureCollection>(`${this.apiBaseUrl}/api/parcels`, {
+      params: httpParams
     });
   }
 }

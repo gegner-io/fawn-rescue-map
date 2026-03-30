@@ -1,5 +1,37 @@
 <section class="map-layout">
   <div class="map-pane">
+    <div class="map-toolbar">
+      <label>
+        Hegegemeinschaft
+        <select
+          [value]="selectedHegegemeinschaftId"
+          (change)="onHegegemeinschaftChange($any($event.target).value)"
+          [disabled]="loadingIndex || hegegemeinschaften.length === 0"
+        >
+          <option *ngFor="let hegegemeinschaft of hegegemeinschaften" [value]="hegegemeinschaft.id">
+            {{ hegegemeinschaft.name }} ({{ hegegemeinschaft.parcelCount }})
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Revier
+        <select
+          [value]="selectedRevierId"
+          (change)="onRevierChange($any($event.target).value)"
+          [disabled]="loadingParcels || reviere.length === 0"
+        >
+          <option *ngFor="let revier of reviere" [value]="revier.id">
+            {{ revier.name }} ({{ revier.parcelCount }})
+          </option>
+        </select>
+      </label>
+
+      <span class="toolbar-status" *ngIf="loadingIndex">Index wird geladen…</span>
+      <span class="toolbar-status" *ngIf="!loadingIndex && loadingParcels">Parzellen werden geladen…</span>
+      <span class="toolbar-error" *ngIf="loadErrorMessage">{{ loadErrorMessage }}</span>
+    </div>
+
     <div id="parcel-map" aria-label="Interactive parcel map"></div>
   </div>
 

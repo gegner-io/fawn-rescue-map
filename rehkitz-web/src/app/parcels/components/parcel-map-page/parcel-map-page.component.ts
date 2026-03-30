@@ -2,9 +2,11 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { Subscription } from 'rxjs';
 import {
+  HegegemeinschaftSummary,
   ParcelDetails,
   ParcelFeature,
-  ParcelFeatureCollection
+  ParcelFeatureCollection,
+  RevierSummary
 } from '../../models/data-contract.models';
 import { ParcelMapDataService } from '../../services/parcel-map-data.service';
 
@@ -15,6 +17,14 @@ import { ParcelMapDataService } from '../../services/parcel-map-data.service';
   styleUrls: ['./parcel-map-page.component.css']
 })
 export class ParcelMapPageComponent implements OnInit, OnDestroy {
+  hegegemeinschaften: HegegemeinschaftSummary[] = [];
+  reviere: RevierSummary[] = [];
+  selectedHegegemeinschaftId: string | null = null;
+  selectedRevierId: string | null = null;
+  loadingParcels = false;
+  loadingIndex = false;
+  loadErrorMessage: string | null = null;
+
   selectedParcelIds: number[] = [];
   activeParcelId: number | null = null;
   parcelDetails: ParcelDetails | null = null;
@@ -32,7 +42,7 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeMap();
-    this.loadParcelGeometry();
+    this.loadIndexAndInitialParcels();
   }
 
   ngOnDestroy(): void {
@@ -59,6 +69,18 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
 
   onSelectParcelFromSidebar(parcelId: number): void {
     this.activateParcel(parcelId);
+  }
+
+  onHegegemeinschaftChange(hegegemeinschaftId: string): void {
+    this.selectedHegegemeinschaftId = hegegemeinschaftId;
+    this.reviere = this.resolveReviereForHegegemeinschaft(hegegemeinschaftId);
+    this.selectedRevierId = this.reviere[0]?.id ?? null;
+    this.loadParcelsForCurrentSelection();
+  }
+
+  onRevierChange(revierId: string): void {
+    this.selectedRevierId = revierId;
+    this.loadParcelsForCurrentSelection();
   }
 
   onRemoveParcelFromSidebar(parcelId: number): void {
@@ -96,14 +118,56 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
     }).addTo(this.map);
   }
 
-  // Loads parcel polygons from GeoJSON and forwards them to Leaflet rendering.
-  private loadParcelGeometry(): void {
-    const geometrySubscription = this.parcelMapDataService.loadParcels().subscribe({
-      next: (collection) => this.renderParcelLayer(collection),
+  private loadIndexAndInitialParcels(): void {
+    this.loadingIndex = true;
+
+    const indexSubscription = this.parcelMapDataService.loadParcelIndex().subscribe({
+      next: (index) => {
+        this.loadingIndex = false;
+        this.hegegemeinschaften = index.hegegemeinschaften;
+
+        const firstHegegemeinschaft = this.hegegemeinschaften[0];
+        this.selectedHegegemeinschaftId = firstHegegemeinschaft?.id ?? null;
+        this.reviere = firstHegegemeinschaft?.reviere ?? [];
+        this.selectedRevierId = this.reviere[0]?.id ?? null;
+
+        this.loadParcelsForCurrentSelection();
+      },
       error: () => {
-        this.detailsError = 'Unable to load parcel geometry from assets/parcels.geojson.';
+        this.loadingIndex = false;
+        this.loadErrorMessage = 'Konnte die Revier-Indexdaten nicht laden.';
       }
     });
+
+    this.subscriptions.add(indexSubscription);
+  }
+
+  private loadParcelsForCurrentSelection(): void {
+    if (!this.selectedRevierId) {
+      this.clearParcelState();
+      this.loadErrorMessage = 'Kein Revier ausgewählt.';
+      return;
+    }
+
+    this.loadingParcels = true;
+    this.loadErrorMessage = null;
+
+    const geometrySubscription = this.parcelMapDataService
+      .loadParcels({
+        revierId: this.selectedRevierId,
+        hegegemeinschaftId: this.selectedHegegemeinschaftId ?? undefined
+      })
+      .subscribe({
+        next: (collection) => {
+          this.loadingParcels = false;
+          this.clearParcelState();
+          this.renderParcelLayer(collection);
+        },
+        error: () => {
+          this.loadingParcels = false;
+          this.loadErrorMessage = 'Konnte Parzellen für das gewählte Revier nicht laden.';
+        }
+      });
 
     this.subscriptions.add(geometrySubscription);
   }
@@ -112,6 +176,10 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
   private renderParcelLayer(collection: ParcelFeatureCollection): void {
     if (!this.map) {
       return;
+    }
+
+    if (this.parcelLayer) {
+      this.map.removeLayer(this.parcelLayer);
     }
 
     this.parcelLayer = L.geoJSON(collection as GeoJSON.GeoJsonObject, {
@@ -202,6 +270,10 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
 
     return {
       parcelId: properties.parcel_id,
+      hegegemeinschaftName:
+        this.readString(properties.hegegemeinschaft_name) ??
+        this.readString(properties['hegegemeinschaftName']),
+      revierName: this.readString(properties.revier_name) ?? this.readString(properties['revierName']),
       status: this.readString(properties.status),
       areaM2: this.readNumber(properties.area_m2),
       confidence: this.readNumber(properties.confidence),
@@ -275,5 +347,23 @@ export class ParcelMapPageComponent implements OnInit, OnDestroy {
 
     this.map.removeLayer(label);
     this.orderLabelsByParcelId.delete(parcelId);
+  }
+
+  private resolveReviereForHegegemeinschaft(hegegemeinschaftId: string): RevierSummary[] {
+    return this.hegegemeinschaften.find((item) => item.id === hegegemeinschaftId)?.reviere ?? [];
+  }
+
+  private clearParcelState(): void {
+    this.selectedParcelIds = [];
+    this.activeParcelId = null;
+    this.parcelDetails = null;
+    this.detailsError = null;
+    this.loadingDetails = false;
+    this.parcelLayersById.clear();
+    this.parcelFeaturesById.clear();
+
+    for (const parcelId of Array.from(this.orderLabelsByParcelId.keys())) {
+      this.removeOrderLabel(parcelId);
+    }
   }
 }

@@ -23,6 +23,8 @@ services:
       dockerfile: Dockerfile
     container_name: fawn-rescue-api
     restart: unless-stopped
+    volumes:
+      - ./parcels.geojson:/app/parcels.geojson:ro
     environment:
       NODE_ENV: development
       PORT: 4000

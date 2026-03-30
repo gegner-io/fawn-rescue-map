@@ -4,6 +4,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { signAccessToken } from './auth/jwt';
 import { authenticateRequest, requireRole } from './auth/middleware';
+import { ParcelCatalog } from './parcels/catalog';
 import {
   findUserByEmail,
   findUserById,
@@ -17,6 +18,12 @@ import { initializeSchema, verifyDatabaseConnection } from './db';
 dotenv.config();
 
 const app = express();
+const parcelCatalog = new ParcelCatalog({
+  geoJsonPath: appConfig.parcelsGeoJsonPath,
+  enableMockGrouping: appConfig.enableMockGrouping,
+  totalHegegemeinschaften: appConfig.mockTotalHegegemeinschaften,
+  totalReviere: appConfig.mockTotalReviere
+});
 
 const loginRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -135,6 +142,50 @@ app.get('/api/admin/ping', authenticateRequest, requireRole('admin'), (_req, res
   res.status(200).json({
     message: 'admin access confirmed'
   });
+});
+
+app.get('/api/parcels/index', async (_req, res) => {
+  try {
+    const index = await parcelCatalog.getIndex();
+    res.status(200).json(index);
+  } catch (error) {
+    console.error('Failed to load parcels index', error);
+    res.status(500).json({
+      message: 'Unable to load parcel index'
+    });
+  }
+});
+
+app.get('/api/parcels', async (req, res) => {
+  try {
+    const revierId = typeof req.query.revierId === 'string' ? req.query.revierId : undefined;
+    const hegegemeinschaftId =
+      typeof req.query.hegegemeinschaftId === 'string' ? req.query.hegegemeinschaftId : undefined;
+
+    const collection = await parcelCatalog.getParcels({
+      revierId,
+      hegegemeinschaftId
+    });
+
+    res.status(200).json(collection);
+  } catch (error) {
+    console.error('Failed to load parcel geometry', error);
+    res.status(500).json({
+      message: 'Unable to load parcel geometry'
+    });
+  }
+});
+
+app.get('/api/parcels/mock-preview', authenticateRequest, requireRole('admin'), async (_req, res) => {
+  try {
+    const preview = await parcelCatalog.getMockPreview();
+    res.status(200).json(preview);
+  } catch (error) {
+    console.error('Failed to load parcel mock preview', error);
+    res.status(500).json({
+      message: 'Unable to load parcel mock preview'
+    });
+  }
 });
 
 async function bootstrap(): Promise<void> {

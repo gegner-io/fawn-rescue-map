@@ -1,49 +1,50 @@
 # fawn-rescue-map
 
 ![Frontend Angular](https://img.shields.io/badge/Frontend-Angular%2020-DD0031?logo=angular&logoColor=white)
-![Map Leaflet](https://img.shields.io/badge/Map-Leaflet-199900?logo=leaflet&logoColor=white)
-![Deploy GitHub Pages](https://img.shields.io/badge/Deploy-GitHub%20Pages-121013?logo=github&logoColor=white)
+![Backend Express](https://img.shields.io/badge/Backend-Express-000000?logo=express&logoColor=white)
+![Database Postgres](https://img.shields.io/badge/Database-PostgreSQL-336791?logo=postgresql&logoColor=white)
+![Proxy Caddy](https://img.shields.io/badge/Reverse%20Proxy-Caddy-1f88c0)
 
-Interaktive Kartenanwendung zur Einsatzplanung der Rehkitzrettung vor Mäharbeiten.
-Das Frontend unterstützt die Auswahl mehrerer Parzellen, eine definierte Befliegungs-Reihenfolge und die strukturierte Übergabe eines Missionsauftrags.
+Interaktive Kartenanwendung zur Einsatzplanung der Rehkitzrettung vor Mäharbeiten, inklusive Login-geschützter Web-App und API.
 
-## Live-Demo
+## Aktueller Stand
 
-- GitHub Pages: https://gegner-io.github.io/fawn-rescue-map/
+- Frontend: Angular + Leaflet + Drag&Drop-Reihenfolge
+- Backend: Express + TypeScript + JWT Auth + Rollenprüfung
+- Datenhaltung: PostgreSQL (`app_users`)
+- Betrieb: Docker Compose + Caddy (TLS + Reverse Proxy + Static Hosting)
+- Live-Domains:
+	- Frontend: `https://core.ipv64.de`
+	- API: `https://api.core.ipv64.de`
 
-## Projektüberblick
+## Features
 
-Dieses Repository enthält das Web-Frontend (Angular), das auf Basis einer GeoJSON-Datei Parzellen visualisiert und für einen Drohneneinsatz planbar macht.
+- Parzellenauswahl und Reihenfolgeplanung auf Karte
+- Login-Flow mit geschützter App-Route
+- Revierbasierte Datenladung (kein Full-GeoJSON-Load im Frontend)
+- API-Endpunkte:
+	- `POST /api/auth/login`
+	- `GET /api/me`
+	- `GET /api/admin/ping` (Rolle `admin`)
+	- `GET /api/parcels/index`
+	- `GET /api/parcels?revierId=<id>&hegegemeinschaftId=<id>`
+- Security-Bausteine:
+	- CORS-Allowlist
+	- Login-Rate-Limit
+	- Produktions-Guards für Secrets/Defaults
 
-Kernfunktionen:
+## Repository-Struktur
 
-- Darstellung von Parzellen aus `parcels.geojson` (Leaflet)
-- Mehrfachauswahl von Flächen per Klick
-- Reihenfolgeplanung per Drag & Drop (Sidebar)
-- Visualisierung der Reihenfolge direkt auf der Karte (1, 2, 3, …)
-- Erfassung von geplantem Mähstart (Datum + Uhrzeit)
-- Demo-Auftragsdialog als Platzhalter für spätere Live-Integration
+- `rehkitz-web/` – Angular Frontend
+- `backend/` – Express API
+- `deploy/Caddyfile` – Reverse Proxy + Frontend Hosting
+- `docker-compose.yml` – lokale Entwicklung
+- `docker-compose.prod.yml` – produktionsnaher Stack
+- `DATA_CONTRACT.md` – Datenvertrag
 
-## Datenquelle / Contract
+## Lokale Entwicklung
 
-- Vertragsdefinition: `DATA_CONTRACT.md`
-- Primäres Datenartefakt: `parcels.geojson` (FeatureCollection)
-- Pflichtfeld je Feature: `properties.parcel_id`
-
-Wichtig:
-
-- Das Frontend erzeugt keine künstlichen Parzellendetails mehr.
-- Optionale Felder (z. B. `area_m2`, `confidence`, `status`) werden nur angezeigt, wenn sie in der GeoJSON vorhanden sind.
-
-## Struktur
-
-- `rehkitz-web/` – Angular-Frontend
-- `backend/` – API-Startservice (Express + TypeScript)
-- `docker-compose.yml` – lokale Self-Hosting-Basis (API + PostgreSQL)
-- `parcels.geojson` – aktuelle Parzellendaten
-- `DATA_CONTRACT.md` – Datenvertrag zwischen Pipeline und Frontend
-
-## Lokal starten (nur Frontend)
+### Frontend
 
 ```bash
 cd rehkitz-web
@@ -51,92 +52,100 @@ npm install
 npm start
 ```
 
-Dann im Browser öffnen:
+Frontend lokal: `http://localhost:4200`
 
-- http://localhost:4200/
-
-## Lokal starten (Frontend + Backend + DB)
-
-1) Backend-Abhängigkeiten installieren:
+### Backend + DB
 
 ```bash
 cd backend
 npm install
-```
-
-2) Backend lokal starten:
-
-```bash
 npm run dev
 ```
 
-3) Datenbank + API alternativ per Docker Compose starten:
+Alternativ per Docker (API + DB):
 
 ```bash
 cd ..
 docker compose up --build
 ```
 
-4) Frontend starten:
+Backend lokal: `http://localhost:4000/health`
+
+## Produktion (Server)
+
+### Voraussetzungen
+
+- DNS:
+	- `core.ipv64.de` → Server-IP
+	- `api.core.ipv64.de` → Server-IP
+- Router-Forwarding: nur Ports `80` und `443`
+- Keine direkte Freigabe von API-Port `4000`
+
+### Einmaliges Setup
+
+1. Produktions-Env erzeugen:
 
 ```bash
-cd rehkitz-web
-npm install
-npm start
+cp backend/.env.production.example backend/.env.production
 ```
 
-Wichtige Endpunkte lokal:
+2. `backend/.env.production` ausfüllen (echte Werte, keine Platzhalter):
 
-- Frontend: http://localhost:4200/
-- Backend Health: http://localhost:4000/health
-- PostgreSQL: localhost:5432
+- `FRONTEND_DOMAIN=core.ipv64.de`
+- `API_DOMAIN=api.core.ipv64.de`
+- `FRONTEND_ORIGIN=https://core.ipv64.de`
+- `PARCELS_GEOJSON_PATH=/app/parcels.geojson`
+- starkes `JWT_SECRET`
+- starkes `DB_PASSWORD`
+- `AUTO_SEED=false`
 
-Hinweis:
+3. Frontend builden (empfohlen lokal) und `rehkitz-web/dist/rehkitz-web/browser` auf den Server kopieren.
 
-- Die produktive API-URL ist über Angular Environments vorbereitet (`https://api.core.ipv64.de`).
-- Auth ist als MVP implementiert (`/api/auth/login`, `/api/me`, Rollenroute `/api/admin/ping`).
-- Userdaten liegen jetzt in PostgreSQL; Default-Seed ist für lokale Entwicklung aktiv.
-- Security-Hardening aktiv: Login-Rate-Limit, CORS-Allowlist, sichere JWT-Checks in Production.
+4. Stack starten/aktualisieren:
 
-## Deployment (GitHub Pages)
+```bash
+docker compose --env-file backend/.env.production -f docker-compose.prod.yml up -d --build
+```
 
-Das Deployment läuft über GitHub Actions:
+### Validierung
 
-- Workflow: `.github/workflows/deploy-pages.yml`
-- Trigger: Push auf `main`/`master` mit Änderungen unter `rehkitz-web/**`
-- Ziel: GitHub Pages
+```bash
+curl -I https://core.ipv64.de
+curl -I https://api.core.ipv64.de/health
+```
 
-Einmalig in GitHub aktivieren:
+Auth-Test:
 
-- Repository Settings → Pages → Source: **GitHub Actions**
+```bash
+curl -s -X POST "https://api.core.ipv64.de/api/auth/login" \
+	-H "Content-Type: application/json" \
+	-d '{"email":"<admin-email>","password":"<admin-password>"}'
+```
 
-## Backend Production Runbook
+## Deployment-Workflow (empfohlen)
 
-Für produktionsnahe Inbetriebnahme liegen jetzt zusätzlich vor:
+1. Lokal entwickeln + testen
+2. Änderungen in Branch committen/pushen
+3. Auf Server pullen
+4. Frontend-Build auf Server aktualisieren
+5. `docker compose ... up -d --build` ausführen
 
-- [docker-compose.prod.yml](docker-compose.prod.yml)
-- [backend/.env.production.example](backend/.env.production.example)
-- [backend/scripts/pre-go-live-check.ps1](backend/scripts/pre-go-live-check.ps1)
-- [deploy/Caddyfile](deploy/Caddyfile)
+## Sicherheitshinweise
 
-Empfohlene Reihenfolge:
+- Niemals `backend/.env.production` ins Git committen
+- Secrets regelmäßig rotieren (`JWT_SECRET`, Admin-Passwort, DB-Passwort)
+- `AUTO_SEED` in Produktion auf `false` lassen
+- `FRONTEND_ORIGIN` nur auf notwendige Origins begrenzen
 
-1. `backend/.env.production` aus Vorlage erzeugen und alle Secrets setzen
-2. Frontend Build für Server erstellen: `cd rehkitz-web && npm ci && npm run build -- --configuration production --base-href /`
-3. `docker compose -f docker-compose.prod.yml --env-file backend/.env.production up -d --build`
-4. `https://api.core.ipv64.de/health` und `https://core.ipv64.de` prüfen
-5. Pre-Go-Live-Checks mit dem PowerShell-Script gegen die Ziel-API ausführen
+## Bekannte Stolperfallen
 
-## GeoJSON-Scraper
+- CORS-Fehler beim lokalen Frontend-Test gegen Live-API: `FRONTEND_ORIGIN` temporär um `http://localhost:4200` ergänzen, danach wieder entfernen.
+- Wenn Revier-/Hege-Felder in GeoJSON fehlen, werden Features als `Nicht zugeordnet` gruppiert.
+- Angular Build auf älteren Servern (Node < 20): lokal builden und `dist` deployen.
+- `curl` vom Server gegen eigene Public Domain kann durch NAT-Loopback verfälscht sein; externe Prüfung im Browser/Client bevorzugen.
 
-- Die Aufbereitung der GeoJson erfolgt in einem anderen Projekt
+## GeoJSON / Contract
 
-## Ausblick: weitere Automatisierung der Rehkitzrettung
-
-Mögliche nächste Schritte:
-
-- Automatische Übernahme neuer GeoJSON-Daten aus der Pipeline
-- Validierungs-Checks (z. B. Vollständigkeit, Geometriequalität, Pflichtfelder)
-- Backend-Integration für echte Missionsaufträge und Pilot-Benachrichtigung
-- Statusfluss pro Parzelle (geplant, bestätigt, geflogen, abgeschlossen)
-- Export/Reporting für Einsatzdokumentation und Nachverfolgung
+- Datenquelle: `parcels.geojson`
+- Vertragsdefinition: `DATA_CONTRACT.md`
+- Pflichtfeld pro Feature: `properties.parcel_id`

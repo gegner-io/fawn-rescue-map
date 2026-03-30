@@ -23,6 +23,8 @@ services:
     restart: unless-stopped
     env_file:
       - ./backend/.env.production
+    volumes:
+      - ./parcels.geojson:/app/parcels.geojson:ro
     environment:
       NODE_ENV: production
     expose:

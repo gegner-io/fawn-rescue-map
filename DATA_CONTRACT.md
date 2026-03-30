@@ -65,6 +65,10 @@ This document defines the interface between:
 
 Possible optional fields:
 
+- `hegegemeinschaft_id` (`string`)
+- `hegegemeinschaft_name` (`string`)
+- `revier_id` (`string`)
+- `revier_name` (`string`)
 - `source_tile_zoom` (`integer`)
 - `confidence` (`number` from 0 to 1)
 - `area_m2` (`number`)
