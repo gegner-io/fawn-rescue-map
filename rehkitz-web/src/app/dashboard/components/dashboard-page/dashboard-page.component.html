@@ -1,0 +1,18 @@
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <h2>Dashboard</h2>
+    <p>Wähle einen Bereich, um direkt weiterzuarbeiten.</p>
+  </header>
+
+  <div class="dashboard-grid">
+    <a *ngFor="let tile of tiles" class="dashboard-tile" [routerLink]="tile.route">
+      <h3>{{ tile.title }}</h3>
+      <p>{{ tile.description }}</p>
+      <span>Öffnen</span>
+    </a>
+  </div>
+
+  <p class="dashboard-note">
+    Weitere Bereiche können später über die Dashboard-Konfiguration ergänzt werden.
+  </p>
+</section>

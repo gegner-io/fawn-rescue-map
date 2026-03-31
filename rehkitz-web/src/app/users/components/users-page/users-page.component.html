@@ -1,0 +1,68 @@
+<section class="users-page">
+  <header>
+    <h2>Benutzerverwaltung</h2>
+    <p>Neue Nutzer erfassen und Rollen im Team direkt verwalten.</p>
+  </header>
+
+  <div class="users-layout">
+    <form class="invite-form" (ngSubmit)="inviteUser()">
+      <h3>Nutzer hinzufügen</h3>
+
+      <label>
+        Name
+        <input type="text" name="inviteName" [(ngModel)]="inviteName" required />
+      </label>
+
+      <label>
+        E-Mail
+        <input type="email" name="inviteEmail" [(ngModel)]="inviteEmail" required />
+      </label>
+
+      <label>
+        Rolle
+        <select name="inviteRole" [(ngModel)]="inviteRole">
+          <option *ngFor="let role of availableRoles" [value]="role">{{ getRoleLabel(role) }}</option>
+        </select>
+      </label>
+
+      <button type="submit" [disabled]="submitting">{{ submitting ? 'Speichern...' : 'Nutzer speichern' }}</button>
+    </form>
+
+    <div class="users-table-wrap">
+      <p class="state-hint" *ngIf="loading">Benutzer werden geladen...</p>
+      <p class="state-hint" *ngIf="!loading && users.length === 0">Noch keine Benutzer vorhanden.</p>
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>E-Mail</th>
+            <th>Rolle</th>
+            <th>Status</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <select [(ngModel)]="user.role" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onRoleChange(user)">
+                <option *ngFor="let role of availableRoles" [value]="role">{{ getRoleLabel(role) }}</option>
+              </select>
+            </td>
+            <td>
+              <span [class.inactive]="!user.active">{{ user.active ? 'Aktiv' : 'Inaktiv' }}</span>
+            </td>
+            <td>
+              <button type="button" (click)="toggleActive(user)">
+                {{ user.active ? 'Deaktivieren' : 'Aktivieren' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="state-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </div>
+  </div>
+</section>

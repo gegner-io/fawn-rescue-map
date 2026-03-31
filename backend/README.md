@@ -27,6 +27,22 @@ Implementiert:
 - `POST /api/auth/login` (JWT Login)
 - `GET /api/me` (nur mit Bearer Token)
 - `GET /api/admin/ping` (nur Rolle `admin`)
+- `GET /api/applications` (auth)
+- `POST /api/applications` (auth)
+- `PATCH /api/applications/:id/status` (auth)
+- `GET /api/users` (auth + Rolle `admin`)
+- `POST /api/users` (auth + Rolle `admin`)
+- `PATCH /api/users/:id` (auth + Rolle `admin`)
+
+Hinweis zur Benutzerverwaltung:
+
+- Deaktivierte Benutzer (`is_active=false`) können sich nicht mehr einloggen.
+
+Antragsliste mit Filter/Pagination:
+
+- `GET /api/applications?status=new|review|approved&search=<text>&page=1&pageSize=10`
+- `status` und `search` sind optional.
+- Antwort enthält zusätzlich `page`, `pageSize`, `total`, `totalPages`.
 
 Demo-User (Seed in PostgreSQL):
 

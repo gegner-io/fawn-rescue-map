@@ -7,6 +7,11 @@
 	min-height: 100vh;
 	display: grid;
 	grid-template-rows: auto 1fr;
+	background: #f8fafe;
+}
+
+.app-shell.auth-shell {
+	grid-template-rows: 1fr;
 }
 
 .app-header {
@@ -16,12 +21,40 @@
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	gap: 1rem;
+	flex-wrap: wrap;
 }
 
 .app-header h1 {
 	margin: 0;
 	font-size: 1rem;
 	font-weight: 600;
+}
+
+.header-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+}
+
+.header-nav a {
+	text-decoration: none;
+	color: #344054;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 0.35rem 0.55rem;
+	font-size: 0.85rem;
+}
+
+.header-nav a:hover {
+	background: #eef3ff;
+}
+
+.header-nav a.active-link {
+	color: #1d5cff;
+	border-color: #b8ccf8;
+	background: #eef3ff;
 }
 
 .header-user {
@@ -39,4 +72,8 @@
 	border-radius: 6px;
 	background: #ffffff;
 	cursor: pointer;
+}
+
+.app-content {
+	min-height: 0;
 }

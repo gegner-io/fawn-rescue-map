@@ -1,0 +1,94 @@
+<section class="applications-page">
+  <header>
+    <h2>Anträge</h2>
+    <p>Anträge erfassen und den Bearbeitungsstand direkt aktualisieren.</p>
+  </header>
+
+  <section class="applications-toolbar">
+    <label>
+      Status
+      <select name="filterStatus" [(ngModel)]="filterStatus" [ngModelOptions]="{ standalone: true }">
+        <option value="all">Alle</option>
+        <option value="new">Neu</option>
+        <option value="review">In Prüfung</option>
+        <option value="approved">Freigegeben</option>
+      </select>
+    </label>
+
+    <label>
+      Suche
+      <input
+        type="text"
+        name="searchTerm"
+        [(ngModel)]="searchTerm"
+        [ngModelOptions]="{ standalone: true }"
+        placeholder="Antragsteller oder Fläche"
+      />
+    </label>
+
+    <div class="toolbar-actions">
+      <button type="button" (click)="applyFilters()">Filter anwenden</button>
+      <button type="button" class="secondary" (click)="clearFilters()">Zurücksetzen</button>
+    </div>
+  </section>
+
+  <div class="applications-layout">
+    <form class="application-form" (ngSubmit)="submitApplication()">
+      <h3>Neuen Antrag erfassen</h3>
+
+      <label>
+        Antragsteller
+        <input type="text" name="applicant" [(ngModel)]="applicant" required />
+      </label>
+
+      <label>
+        Flächenbezug
+        <input type="text" name="parcelReference" [(ngModel)]="parcelReference" required />
+      </label>
+
+      <label>
+        Notiz
+        <textarea name="note" [(ngModel)]="note" rows="3"></textarea>
+      </label>
+
+      <button type="submit" [disabled]="submitting">{{ submitting ? 'Speichern...' : 'Antrag anlegen' }}</button>
+    </form>
+
+    <div class="applications-list">
+      <p class="state-hint" *ngIf="loading">Anträge werden geladen...</p>
+      <p class="state-hint" *ngIf="!loading && applications.length === 0">Noch keine Anträge vorhanden.</p>
+      <article *ngFor="let application of applications" class="application-item">
+        <header>
+          <h4>{{ application.applicant }}</h4>
+          <span>{{ getStatusLabel(application.status) }}</span>
+        </header>
+
+        <p><strong>Fläche:</strong> {{ application.parcelReference }}</p>
+        <p><strong>Erfasst:</strong> {{ formatRequestedAt(application.requestedAt) }}</p>
+        <p *ngIf="application.note"><strong>Notiz:</strong> {{ application.note }}</p>
+
+        <button type="button" (click)="advanceStatus(application)">
+          Status wechseln
+        </button>
+      </article>
+
+      <div class="pagination" *ngIf="!loading && total > 0">
+        <label>
+          Pro Seite
+          <select [(ngModel)]="pageSize" [ngModelOptions]="{ standalone: true }" (ngModelChange)="onPageSizeChange()">
+            <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+          </select>
+        </label>
+
+        <span>Seite {{ page }} von {{ totalPages }} ({{ total }} gesamt)</span>
+
+        <div class="pagination-actions">
+          <button type="button" class="secondary" (click)="previousPage()" [disabled]="page <= 1">Zurück</button>
+          <button type="button" (click)="nextPage()" [disabled]="page >= totalPages">Weiter</button>
+        </div>
+      </div>
+
+      <p class="state-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </div>
+  </div>
+</section>

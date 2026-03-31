@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { AuthService, AuthUser } from './auth/services/auth.service';
 
 @Component({
@@ -11,12 +13,17 @@ import { AuthService, AuthUser } from './auth/services/auth.service';
 export class App implements OnInit, OnDestroy {
   protected readonly title = 'Rehkitz Parcel Mission Planner';
   currentUser: AuthUser | null = null;
+  isLoginRoute = false;
 
   private readonly subscriptions = new Subscription();
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly router: Router
+  ) {}
 
   ngOnInit(): void {
+    this.updateRouteState(this.router.url);
     this.authService.initializeSession();
 
     const userSubscription = this.authService.currentUser$.subscribe((user) => {
@@ -24,6 +31,14 @@ export class App implements OnInit, OnDestroy {
     });
 
     this.subscriptions.add(userSubscription);
+
+    const routeSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        this.updateRouteState(event.urlAfterRedirects);
+      });
+
+    this.subscriptions.add(routeSubscription);
   }
 
   ngOnDestroy(): void {
@@ -32,5 +47,9 @@ export class App implements OnInit, OnDestroy {
 
   onLogout(): void {
     this.authService.logout();
+  }
+
+  private updateRouteState(url: string): void {
+    this.isLoginRoute = url.startsWith('/login');
   }
 }

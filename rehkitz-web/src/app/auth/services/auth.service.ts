@@ -88,8 +88,13 @@ export class AuthService {
     }
   }
 
-  private buildAuthHeaders(): HttpHeaders {
+  buildAuthHeaders(): HttpHeaders {
     const token = this.getStoredToken();
+
+    if (!token) {
+      return new HttpHeaders();
+    }
+
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });

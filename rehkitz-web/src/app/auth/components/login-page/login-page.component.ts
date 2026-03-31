@@ -30,7 +30,7 @@ export class LoginPageComponent {
 
     this.authService.login(this.email.trim(), this.password).subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        this.router.navigate(['/dashboard']);
       },
       error: () => {
         this.loading = false;

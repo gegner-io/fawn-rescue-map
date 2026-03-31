@@ -1,0 +1,211 @@
+.applications-page {
+  max-width: 1080px;
+  margin: 1.25rem auto;
+  padding: 0 1rem 1.25rem;
+}
+
+.applications-page header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.applications-page header p {
+  margin: 0.4rem 0 0;
+  color: #576074;
+}
+
+.applications-toolbar {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 0.65rem;
+  align-items: end;
+}
+
+.applications-toolbar label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #344054;
+}
+
+.applications-toolbar input,
+.applications-toolbar select,
+.pagination select {
+  border: 1px solid #c8d2e1;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  background: #ffffff;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toolbar-actions button,
+.pagination button {
+  height: 36px;
+  border: 1px solid #1d5cff;
+  background: #1d5cff;
+  color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0 0.75rem;
+}
+
+.toolbar-actions button.secondary,
+.pagination button.secondary {
+  background: #ffffff;
+  color: #344054;
+  border-color: #9db3d6;
+}
+
+.applications-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(250px, 340px) 1fr;
+  gap: 1rem;
+}
+
+.application-form,
+.application-item {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.application-form {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+.application-form h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.application-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #344054;
+}
+
+.application-form input,
+.application-form textarea {
+  border: 1px solid #c8d2e1;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+}
+
+.application-form button,
+.application-item button {
+  height: 36px;
+  border: 1px solid #1d5cff;
+  background: #1d5cff;
+  color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.application-form button[disabled] {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.applications-list {
+  display: grid;
+  gap: 0.7rem;
+  align-content: start;
+}
+
+.application-item header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.application-item h4 {
+  margin: 0;
+}
+
+.application-item header span {
+  display: inline-flex;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: #eef3ff;
+  color: #1d5cff;
+  font-size: 0.8rem;
+}
+
+.application-item p {
+  margin: 0.4rem 0;
+  color: #4a5568;
+}
+
+.application-item button {
+  margin-top: 0.35rem;
+}
+
+.state-hint {
+  margin: 0;
+  color: #576074;
+  font-size: 0.9rem;
+}
+
+.state-error {
+  margin: 0.35rem 0 0;
+  color: #b42318;
+  font-size: 0.85rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+}
+
+.pagination label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #344054;
+  font-size: 0.85rem;
+}
+
+.pagination span {
+  color: #576074;
+  font-size: 0.9rem;
+}
+
+.pagination-actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.pagination button[disabled] {
+  opacity: 0.7;
+  cursor: default;
+}
+
+@media (max-width: 920px) {
+  .applications-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .applications-layout {
+    grid-template-columns: 1fr;
+  }
+}

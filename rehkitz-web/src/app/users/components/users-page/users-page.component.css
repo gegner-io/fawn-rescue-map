@@ -1,0 +1,124 @@
+.users-page {
+  max-width: 1080px;
+  margin: 1.25rem auto;
+  padding: 0 1rem 1.25rem;
+}
+
+.users-page header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.users-page header p {
+  margin: 0.4rem 0 0;
+  color: #576074;
+}
+
+.users-layout {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: minmax(250px, 320px) 1fr;
+  gap: 1rem;
+}
+
+.invite-form,
+.users-table-wrap {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.invite-form {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+}
+
+.invite-form h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.invite-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #344054;
+}
+
+.invite-form input,
+.invite-form select,
+.users-table select {
+  border: 1px solid #c8d2e1;
+  border-radius: 8px;
+  padding: 0.42rem 0.52rem;
+  font: inherit;
+  background: #ffffff;
+}
+
+.invite-form button,
+.users-table button {
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #1d5cff;
+  background: #1d5cff;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.invite-form button[disabled] {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.users-table th,
+.users-table td {
+  border-bottom: 1px solid #e4e8ef;
+  padding: 0.55rem 0.35rem;
+  text-align: left;
+}
+
+.users-table th {
+  color: #4a5568;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.users-table span {
+  color: #087443;
+  font-weight: 600;
+}
+
+.users-table span.inactive {
+  color: #b42318;
+}
+
+.state-hint {
+  margin: 0 0 0.5rem;
+  color: #576074;
+  font-size: 0.9rem;
+}
+
+.state-error {
+  margin: 0.6rem 0 0;
+  color: #b42318;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 920px) {
+  .users-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .users-table-wrap {
+    overflow-x: auto;
+  }
+}

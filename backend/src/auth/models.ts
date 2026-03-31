@@ -5,6 +5,7 @@ export interface UserRecord {
   email: string;
   name: string;
   role: Role;
+  isActive: boolean;
   passwordHash: string;
 }
 

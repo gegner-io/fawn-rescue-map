@@ -7,11 +7,17 @@ import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { LoginPageComponent } from './auth/components/login-page/login-page.component';
 import { ParcelsModule } from './parcels';
+import { DashboardPageComponent } from './dashboard/components/dashboard-page/dashboard-page.component';
+import { ApplicationsPageComponent } from './applications/components/applications-page/applications-page.component';
+import { UsersPageComponent } from './users/components/users-page/users-page.component';
 
 @NgModule({
   declarations: [
     App,
-    LoginPageComponent
+    LoginPageComponent,
+    DashboardPageComponent,
+    ApplicationsPageComponent,
+    UsersPageComponent
   ],
   imports: [
     BrowserModule,

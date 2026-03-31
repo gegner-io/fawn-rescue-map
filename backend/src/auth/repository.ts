@@ -8,6 +8,7 @@ interface DbUserRow {
   email: string;
   name: string;
   role: Role;
+  is_active: boolean;
   password_hash: string;
 }
 
@@ -17,6 +18,7 @@ function mapDbUser(row: DbUserRow): UserRecord {
     email: row.email,
     name: row.name,
     role: row.role,
+    isActive: row.is_active,
     passwordHash: row.password_hash
   };
 }
@@ -32,7 +34,7 @@ export function toPublicUser(user: UserRecord): PublicUser {
 
 export async function findUserByEmail(email: string): Promise<UserRecord | null> {
   const result = await pool.query<DbUserRow>(
-    `SELECT id, email, name, role, password_hash FROM app_users WHERE LOWER(email) = LOWER($1) LIMIT 1`,
+    `SELECT id, email, name, role, is_active, password_hash FROM app_users WHERE LOWER(email) = LOWER($1) LIMIT 1`,
     [email]
   );
 
@@ -45,7 +47,7 @@ export async function findUserByEmail(email: string): Promise<UserRecord | null>
 
 export async function findUserById(id: string): Promise<UserRecord | null> {
   const result = await pool.query<DbUserRow>(
-    `SELECT id, email, name, role, password_hash FROM app_users WHERE id = $1 LIMIT 1`,
+    `SELECT id, email, name, role, is_active, password_hash FROM app_users WHERE id = $1 LIMIT 1`,
     [id]
   );
 
