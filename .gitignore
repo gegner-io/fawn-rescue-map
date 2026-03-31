@@ -2,3 +2,5 @@ backend/node_modules/
 backend/dist/
 backend/.env
 backend/.env.production
+data-import/private/
+data-import/*.original.csv
